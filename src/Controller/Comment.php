@@ -1,17 +1,22 @@
 <?php
 
+namespace Masterclass\Controller;
+
+use Masterclass\Request\Request;
+use PDO;
+
 class Comment {
-    
-    public function __construct($config) {
-        $dbconfig = $config['database'];
-        $dsn = 'mysql:host=' . $dbconfig['host'] . ';dbname=' . $dbconfig['name'];
-        $this->db = new PDO($dsn, $dbconfig['user'], $dbconfig['pass']);
-        $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    protected $db;
+    protected $request;
+
+    public function __construct(\PDO $pdo, Request $request) {
+        $this->db = $pdo;
+        $this->request = $request;
     }
     
     public function create() {
-        if(!isset($_SESSION['AUTHENTICATED'])) {
-            die('not auth');
+        if(!($this->request->session('AUTHENTICATED'))) {
             header("Location: /");
             exit;
         }
@@ -19,8 +24,8 @@ class Comment {
         $sql = 'INSERT INTO comment (created_by, created_on, story_id, comment) VALUES (?, NOW(), ?, ?)';
         $stmt = $this->db->prepare($sql);
         $stmt->execute(array(
-            $_SESSION['username'],
-            $_POST['story_id'],
+            $this->request->session('username'),
+            $this->request->post('story_id'),
             filter_input(INPUT_POST, 'comment', FILTER_SANITIZE_FULL_SPECIAL_CHARS),
         ));
         header("Location: /story/?id=" . $_POST['story_id']);

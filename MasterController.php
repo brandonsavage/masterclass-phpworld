@@ -3,50 +3,34 @@
 class MasterController {
     
     private $config;
+    private $db;
     
-    public function __construct($config) {
-        $this->_setupConfig($config);
+    public function __construct(
+        \Masterclass\Request\Request $request,
+        \Masterclass\Routing\Router $router,
+        $config) {
+        $this->request = $request;
+        $this->config = $config;
+        $this->router = $router;
     }
     
     public function execute() {
-        $call = $this->_determineControllers();
+        $call = $this->router->determineControllers();
         $call_class = $call['call'];
         $class = ucfirst(array_shift($call_class));
         $method = array_shift($call_class);
-        $o = new $class($this->config);
+        $this->createPDO();
+        $o = 'Masterclass\Controller\\' . $class;
+        $o = new $o($this->db, $this->request);
         return $o->$method();
     }
-    
-    private function _determineControllers()
+
+    protected function createPDO()
     {
-        if (isset($_SERVER['REDIRECT_BASE'])) {
-            $rb = $_SERVER['REDIRECT_BASE'];
-        } else {
-            $rb = '';
-        }
-        
-        $ruri = $_SERVER['REQUEST_URI'];
-        $path = str_replace($rb, '', $ruri);
-        $return = array();
-        
-        foreach($this->config['routes'] as $k => $v) {
-            $matches = array();
-            $pattern = '$' . $k . '$';
-            if(preg_match($pattern, $path, $matches))
-            {
-                $controller_details = $v;
-                $path_string = array_shift($matches);
-                $arguments = $matches;
-                $controller_method = explode('/', $controller_details);
-                $return = array('call' => $controller_method);
-            }
-        }
-        
-        return $return;
-    }
-    
-    private function _setupConfig($config) {
-        $this->config = $config;
+        $dbconfig = $this->config['database'];
+        $dsn = 'mysql:host=' . $dbconfig['host'] . ';dbname=' . $dbconfig['name'];
+        $this->db = new PDO($dsn, $dbconfig['user'], $dbconfig['pass']);
+        $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
     
 }

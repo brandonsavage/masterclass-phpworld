@@ -1,5 +1,18 @@
 {
-    "require-dev": {
-        "laravel/homestead": "^3.0"
+    "name": "brandon/masterclass-repo",
+    "authors": [
+        {
+            "name": "Brandon Savage",
+            "email": "brandon@brandonsavage.net"
+        }
+    ],
+    "require": {
+        "aura/di": "~2.0.0"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "Masterclass\\": "src/"
+        }
     }
 }

@@ -9,7 +9,7 @@
 namespace Masterclass\Database;
 
 
-class Database
+class Database implements DatabaseI
 {
     protected $pdo;
 

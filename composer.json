@@ -7,7 +7,8 @@
         }
     ],
     "require": {
-        "aura/di": "~2.0.0"
+        "aura/di": "~2.0.0",
+        "mockery/mockery": "^0.9.5"
     },
 
     "autoload": {
